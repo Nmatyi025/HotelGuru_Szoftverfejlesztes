@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% macro nav_to_details(id) %}
+<a href="/hotel/{{id}}">Details</a>
+{% endmacro %}
+
+{% macro delete_hotels(id) %}
+<a href="/hotel/delete/{{id}}">Delete</a>
+{% endmacro %}
+
+{% block content %}
+<div>
+    <form action="" method="post" novalidate>
+        {{ search_form.hidden_tag() }}
+        <p>
+            {{ search_form.search_text.label }}
+            {{ search_form.search_text(size = 50) }}
+            {{ search_form.submit() }}<br />
+        </p>
+    </form>
+</div>
+<div> Number of hotels: {{ hotels|length }} - <a href="/hotel/add">Add hotel</a></div>
+{% if hotels %}
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Rooms</th>
+        <th></th>
+        <th></th>
+    </tr>
+    {% for hotel in hotels %}
+    <tr>
+        <td>{{ hotel.id }}</td>
+        <td>{{ hotel.hotel_name }}</td>
+        <td>{{ hotel.location }}</td>
+        <td>{{ hotel.rooms|length }}</td>
+        <td>{{ nav_to_details(hotel.id) }}</td>
+        <td>{{ delete_hotels(hotel.id) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

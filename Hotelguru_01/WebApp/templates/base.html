@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+</head>
+<body>
+    <!-- Menu bar -->
+    <div>
+        <a href="/index">Home</a> |
+        <a href="/hotels">Hotels</a> |
+        <a href="/rooms">Rooms</a>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <span style="color:red;">{{ message }}</span><br />
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- Content -->
+    {% block content %}
+    <h3>content block</h3>
+    {% endblock %}
+
+    <!-- Footer -->
+    {% include 'footer.html' %}
+</body>
+</html>
