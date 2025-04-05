@@ -1,25 +1,17 @@
-from flask import Flask
+from apiflask import APIFlask
 from config import Config
-from. extensions import db
+from app.extensions import db
 
-def create_app(config_class=Config) -> Flask:
-    app = Flask(__name__)
+def create_app(config_class=Config):
+    app = APIFlask(__name__, json_errors=True, docs_path="/swagger", title="Hotelguru API", version="1.0.0")
     app.config.from_object(config_class)
+
     db.init_app(app)
-    
+
     from flask_migrate import Migrate
     migrate = Migrate(app, db)
 
-    from app.models import (
-        durations,
-        enums,
-        reservation,
-        room,
-        role,
-        user,
-        extra_service
-    )
-
+    # Register the main blueprint
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 

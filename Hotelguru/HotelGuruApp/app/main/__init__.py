@@ -1,6 +1,6 @@
-from flask import Blueprint
+from apiflask import APIBlueprint
 
-bp = Blueprint('main', __name__)
+bp = APIBlueprint('main', __name__, tag="Main")
 
 from app.main import routes
 from app.models import *

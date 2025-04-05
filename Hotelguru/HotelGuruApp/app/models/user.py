@@ -4,7 +4,7 @@ from sqlalchemy.types import String, Integer
 from typing import List, Optional
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.associations import UserRole
-from app.models.role import Role
+
 
 class User(db.Model):
     __tablename__ = "users"
