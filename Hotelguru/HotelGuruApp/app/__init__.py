@@ -12,7 +12,7 @@ def create_app(config_class=Config):
     migrate = Migrate(app, db)
 
     # Register the main blueprint
-    from app.main import bp as main_bp
-    app.register_blueprint(main_bp)
+    from app.blueprints import bp as main_bp
+    app.register_blueprint(main_bp, url_prefix='/api')
 
     return app
