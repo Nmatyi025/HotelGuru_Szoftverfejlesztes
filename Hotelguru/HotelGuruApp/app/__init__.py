@@ -1,6 +1,7 @@
 from apiflask import APIFlask
 from config import Config
 from app.extensions import db
+from app.models import *
 
 def create_app(config_class=Config):
     app = APIFlask(__name__, json_errors=True, docs_path="/swagger", title="Hotelguru API", version="1.0.0")
@@ -12,7 +13,7 @@ def create_app(config_class=Config):
     migrate = Migrate(app, db)
 
     # Register the main blueprint
-    from app.blueprints import bp as main_bp
-    app.register_blueprint(main_bp, url_prefix='/api')
+    from app.blueprints import bp as bp_default
+    app.register_blueprint(bp_default, url_prefix='/api')
 
     return app
