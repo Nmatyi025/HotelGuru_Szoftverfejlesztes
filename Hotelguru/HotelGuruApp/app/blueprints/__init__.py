@@ -12,3 +12,5 @@ bp.register_blueprint(bp_rooms, url_prefix='/rooms')
 from app.blueprints.user import bp as bp_user
 bp.register_blueprint(bp_user, url_prefix='/user')
 
+from app.blueprints.reservation import bp as bp_reservation
+bp.register_blueprint(bp_reservation, url_prefix='/reservations')

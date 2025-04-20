@@ -10,7 +10,7 @@ class RoomsService:
         """
         List all rooms that are not marked as deleted.
         """
-        rooms = db.session.execute(select(Room).filter(Room.deleted.is_(False))).scalars()
+        rooms = db.session.execute(select(Room)).scalars()
         return True, rooms
 
     @staticmethod
@@ -21,7 +21,7 @@ class RoomsService:
         try:
             room = db.session.get(Room, rid)
             if room:
-                room.deleted = True
+  
                 db.session.commit()
                 return True, "Room deleted successfully."
             return False, "Room not found."
@@ -69,7 +69,7 @@ class RoomsService:
         try:
             if type_name is None:
                 rooms = db.session.execute(
-                    select(Room).filter(Room.deleted.is_(False))
+                    select(Room)
                 ).scalars().all()
             else:
                 rooms = db.session.execute(
@@ -89,7 +89,7 @@ class RoomsService:
         """
         try:
             room = db.session.get(Room, rid)
-            if not room or room.deleted:
+            if not room:
                 return False, "Room not found."
             return True, room
         except Exception as ex:
