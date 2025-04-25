@@ -1,0 +1,33 @@
+{%  extends "base.html" %}
+
+{% macro mailto(email) %}
+<a href="mailto:{{email}}">Send mail</a>
+{% endmacro %}
+
+
+{% block content %}
+<div>Number of posts: {{ posts|length }}</div>
+<table border="1">
+    <tr>
+        <th>User</th>
+        <th>Post</th>
+        <th>E-mail</th>
+    </tr>
+    {% for post in posts %}
+    <tr>
+        <td>{{ "{} says:".format(post.author.name)}}</td>
+        <td>{{post.body}}</td>
+        <td> {{ mailto(post.author.get_email()) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+
+
+{% block user%}
+    {% if user %}
+    <h3>Hello, {{user.username|capitalize}}</h3>
+    {% else %}
+    <h3>Please login!</h3>
+    {%  endif%}
+{% endblock %}
