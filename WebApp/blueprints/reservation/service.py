@@ -1,5 +1,6 @@
 from WebApp import db
 from WebApp.models.booking import Booking as Reservation
+from WebApp.blueprints.reservation.schema import ReservationResponseSchema
 from sqlalchemy import select
 
 class ReservationService:
@@ -8,10 +9,29 @@ class ReservationService:
     def add_reservation(request):
         """Add a new reservation."""
         try:
-            reservation = Reservation(**request)
+            # Create reservation with the correct field names from the model
+            reservation = Reservation(
+                user_id=request.get("user_id"),
+                room_id=request.get("room_id"),
+                start_date=request.get("start_date"),
+                end_date=request.get("end_date"),
+                status=request.get("status", "pending")
+            )
             db.session.add(reservation)
             db.session.commit()
-            return True, reservation
+            
+            # Create a dictionary with the fields to avoid serialization issues
+            result = {
+                'id': reservation.id,
+                'user_id': reservation.user_id,
+                'room_id': reservation.room_id,
+                'start_date': reservation.start_date,
+                'end_date': reservation.end_date,
+                'status': reservation.status,
+                'created_on': reservation.created_on
+            }
+            
+            return True, result
         except Exception as ex:
             return False, f"add_reservation() error: {str(ex)}"
 
@@ -22,7 +42,19 @@ class ReservationService:
             reservation = db.session.get(Reservation, rid)
             if not reservation:
                 return False, "Reservation not found."
-            return True, reservation
+                
+            # Create a dictionary with the fields to avoid serialization issues
+            result = {
+                'id': reservation.id,
+                'user_id': reservation.user_id,
+                'room_id': reservation.room_id,
+                'start_date': reservation.start_date,
+                'end_date': reservation.end_date,
+                'status': reservation.status,
+                'created_on': reservation.created_on
+            }
+            
+            return True, result
         except Exception as ex:
             return False, f"get_reservation() error: {str(ex)}"
 

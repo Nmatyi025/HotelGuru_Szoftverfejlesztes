@@ -8,7 +8,7 @@ class RoomsService:
     @staticmethod
     def rooms_list_all():
         """
-        List all rooms that are not marked as deleted.
+        List all available rooms.
         """
         rooms = db.session.execute(select(Room)).scalars()
         return True, rooms
@@ -16,12 +16,12 @@ class RoomsService:
     @staticmethod
     def room_delete(rid):
         """
-        Delete a room by marking it as deleted.
+        Delete a room by ID.
         """
         try:
             room = db.session.get(Room, rid)
             if room:
-  
+                db.session.delete(room)
                 db.session.commit()
                 return True, "Room deleted successfully."
             return False, "Room not found."
@@ -35,9 +35,20 @@ class RoomsService:
         """
         try:
             # Create and add the room
-            room = Room(**request)
+            room = Room(
+                room_number=request.get("room_number"),
+                hotel_id=request.get("hotel_id"),
+                price_per_night=request.get("price_per_night"),
+                available=request.get("available", True),
+                description=request.get("description"),
+                photo_urls=request.get("photo_urls")
+            )
             db.session.add(room)
             db.session.commit()
+            
+            # Return the dictionary representation of the room
+            # This allows apiflask to properly serialize the response
+            room_schema = RoomsResponseSchema()
             return True, room
         except Exception as ex:
             return False, f"room_add() error: {str(ex)}"
@@ -51,10 +62,19 @@ class RoomsService:
             # Fetch the room and update its fields
             room = db.session.get(Room, rid)
             if room:
-                room.name = str(request["name"])
-                room.type = request["type"]
-                room.status = request["status"]
-                room.price = float(request["price"])
+                if "room_number" in request:
+                    room.room_number = request["room_number"]
+                if "hotel_id" in request:
+                    room.hotel_id = request["hotel_id"]
+                if "price_per_night" in request:
+                    room.price_per_night = request["price_per_night"]
+                if "available" in request:
+                    room.available = request["available"]
+                if "description" in request:
+                    room.description = request["description"]
+                if "photo_urls" in request:
+                    room.photo_urls = request["photo_urls"]
+                
                 db.session.commit()
                 return True, room
             return False, "Room not found."
@@ -62,25 +82,17 @@ class RoomsService:
             return False, f"room_update() error: {str(ex)}"
 
     @staticmethod
-    def room_list_type(type_name):
+    def room_list_by_hotel(hotel_id):
         """
-        List rooms by their type.
+        List rooms by hotel ID.
         """
         try:
-            if type_name is None:
-                rooms = db.session.execute(
-                    select(Room)
-                ).scalars().all()
-            else:
-                rooms = db.session.execute(
-                    select(Room).filter(
-                        Room.deleted.is_(False),
-                        Room.type == type_name
-                    )
-                ).scalars().all()
+            rooms = db.session.execute(
+                select(Room).filter(Room.hotel_id == hotel_id)
+            ).scalars().all()
             return True, rooms
         except Exception as ex:
-            return False, f"room_list_type() error: {str(ex)}"
+            return False, f"room_list_by_hotel() error: {str(ex)}"
 
     @staticmethod
     def room_get_by_id(rid):

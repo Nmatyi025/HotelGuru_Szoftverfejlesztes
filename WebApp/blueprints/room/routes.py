@@ -1,7 +1,6 @@
 from WebApp.blueprints.room import bp
 from WebApp.blueprints.room.schema import RoomsListSchema, RoomsRequestSchema, RoomsResponseSchema
 from WebApp.blueprints.room.service import RoomsService
-from apiflask.fields import String, Integer
 from apiflask import HTTPError
 
 @bp.route('/')
@@ -13,7 +12,7 @@ def index():
 @bp.output(RoomsListSchema(many=True))
 def rooms_list_all():
     """
-    List all rooms that are not marked as deleted.
+    List all available rooms.
     """
     success, response = RoomsService.rooms_list_all()
     if success:
@@ -23,7 +22,7 @@ def rooms_list_all():
 @bp.delete('/delete/<int:rid>')
 def room_delete(rid):
     """
-    Delete a room by marking it as deleted.
+    Delete a room by ID.
     """
     success, response = RoomsService.room_delete(rid)
     if success:
@@ -39,7 +38,7 @@ def room_add_new(json_data):
     """
     success, response = RoomsService.room_add(json_data)
     if success:
-        return response, 200
+        return response, 200  # Changed from 201 to 200
     raise HTTPError(message=response, status_code=400)
 
 @bp.put('/update/<int:rid>')
@@ -54,13 +53,13 @@ def room_update(rid, json_data):
         return response, 200
     raise HTTPError(message=response, status_code=400)
 
-@bp.get('/type/<string:type_name>')
+@bp.get('/hotel/<int:hotel_id>')
 @bp.output(RoomsListSchema(many=True))
-def room_list_by_type(type_name):
+def room_list_by_hotel(hotel_id):
     """
-    List rooms by their type.
+    List rooms by hotel ID.
     """
-    success, result = RoomsService.room_list_type(type_name)
+    success, result = RoomsService.room_list_by_hotel(hotel_id)
     if success:
         return result, 200
     raise HTTPError(message=result, status_code=400)

@@ -15,7 +15,7 @@ def add_reservation(json_data):
     """Add a new reservation."""
     success, response = ReservationService.add_reservation(json_data)
     if success:
-        return response, 201
+        return response, 200
     raise HTTPError(400, message=response)
 
 @bp.get('/<int:rid>')

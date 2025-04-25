@@ -13,7 +13,7 @@ from WebApp.blueprints.room import bp as bp_rooms
 bp.register_blueprint(bp_rooms, url_prefix='/rooms')
 
 from WebApp.blueprints.reservation import bp as bp_reservation
-bp.register_blueprint(bp_reservation, url_prefix='/reservations')
+bp.register_blueprint(bp_reservation, url_prefix='/reservation')
 
 from WebApp import routes
 from WebApp import models
