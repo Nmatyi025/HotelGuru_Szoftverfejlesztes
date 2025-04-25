@@ -1,6 +1,6 @@
-from app.blueprints.room.schema import RoomsResponseSchema, RoomsListSchema
-from app.extensions import db
-from app.models.room import Room
+from WebApp.blueprints.room.schema import RoomsResponseSchema, RoomsListSchema
+from WebApp import db
+from WebApp.models.room import Room
 from sqlalchemy import select
 
 class RoomsService:

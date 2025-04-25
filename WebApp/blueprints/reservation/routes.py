@@ -1,6 +1,6 @@
-from app.blueprints.reservation import bp
-from app.blueprints.reservation.schema import ReservationRequestSchema, ReservationResponseSchema
-from app.blueprints.reservation.service import ReservationService
+from WebApp.blueprints.reservation import bp
+from WebApp.blueprints.reservation.schema import ReservationRequestSchema, ReservationResponseSchema
+from WebApp.blueprints.reservation.service import ReservationService
 from apiflask import HTTPError
 
 @bp.route('/')

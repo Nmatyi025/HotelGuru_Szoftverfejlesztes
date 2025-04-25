@@ -1,6 +1,6 @@
-from app.blueprints.room import bp
-from app.blueprints.room.schema import RoomsListSchema, RoomsRequestSchema, RoomsResponseSchema
-from app.blueprints.room.service import RoomsService
+from WebApp.blueprints.room import bp
+from WebApp.blueprints.room.schema import RoomsListSchema, RoomsRequestSchema, RoomsResponseSchema
+from WebApp.blueprints.room.service import RoomsService
 from apiflask.fields import String, Integer
 from apiflask import HTTPError
 

@@ -1,5 +1,5 @@
-from app.extensions import db
-from app.models.reservation import Reservation
+from WebApp import db
+from WebApp.models.booking import Booking as Reservation
 from sqlalchemy import select
 
 class ReservationService:
