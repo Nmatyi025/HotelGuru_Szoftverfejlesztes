@@ -2,25 +2,21 @@ from apiflask import APIFlask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
-#import flask
+from config import Config
+from WebApp.extensions import db
 
-class Base(DeclarativeBase):
-    pass
-
-db = SQLAlchemy(model_class=Base)
-
+def create_app(config_class=Config):
+    app = APIFlask(__name__, json_errors=True, docs_path="/swagger", title="Hotel Guru Api")
 
 
+    app.config.from_object(config_class)
 
-app = APIFlask(__name__, json_errors=True, docs_path="/swagger", title="Hotel Guru Api")
-app.config["SECRET_KEY"] = "qweasdweasd"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///mydb.db"
+    db.init_app(app)
 
-db.init_app(app)
-migrate = Migrate(app, db)
+    from flask_migrate import Migrate
+    migrate = Migrate(app, db, render_as_batch=True)
 
-from WebApp.blueprints import bp as main_bp
-app.register_blueprint(main_bp, url_prefix="/api")
+    from WebApp.blueprints import bp as main_bp
+    app.register_blueprint(main_bp, url_prefix="/api")
 
-from WebApp import routes, models
-
+    return app

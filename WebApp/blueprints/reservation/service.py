@@ -9,7 +9,6 @@ class ReservationService:
     def add_reservation(request):
         """Add a new reservation."""
         try:
-            # Create reservation with the correct field names from the model
             reservation = Reservation(
                 user_id=request.get("user_id"),
                 room_id=request.get("room_id"),
@@ -20,7 +19,6 @@ class ReservationService:
             db.session.add(reservation)
             db.session.commit()
             
-            # Create a dictionary with the fields to avoid serialization issues
             result = {
                 'id': reservation.id,
                 'user_id': reservation.user_id,
@@ -43,7 +41,6 @@ class ReservationService:
             if not reservation:
                 return False, "Reservation not found."
                 
-            # Create a dictionary with the fields to avoid serialization issues
             result = {
                 'id': reservation.id,
                 'user_id': reservation.user_id,

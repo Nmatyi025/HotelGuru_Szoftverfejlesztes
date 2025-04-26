@@ -2,6 +2,8 @@ from WebApp.blueprints.room import bp
 from WebApp.blueprints.room.schema import RoomsListSchema, RoomsRequestSchema, RoomsResponseSchema
 from WebApp.blueprints.room.service import RoomsService
 from apiflask import HTTPError
+from WebApp.extensions import auth
+from WebApp.blueprints import role_required
 
 @bp.route('/')
 def index():
@@ -20,6 +22,8 @@ def rooms_list_all():
     raise HTTPError(message=response, status_code=400)
 
 @bp.delete('/delete/<int:rid>')
+@bp.auth_required(auth)
+@role_required(["Administrator"])
 def room_delete(rid):
     """
     Delete a room by ID.
@@ -38,7 +42,7 @@ def room_add_new(json_data):
     """
     success, response = RoomsService.room_add(json_data)
     if success:
-        return response, 200  # Changed from 201 to 200
+        return response, 200
     raise HTTPError(message=response, status_code=400)
 
 @bp.put('/update/<int:rid>')

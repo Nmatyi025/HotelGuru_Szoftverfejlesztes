@@ -1,10 +1,6 @@
-from WebApp import app
+from flask import Flask
+from config import Config
+from WebApp import create_app
 
 if __name__ == '__main__':
-    import os
-    HOST = os.environ.get('SERVER_HOST', 'localhost')
-    try:
-        PORT = int(os.environ.get('SERVER_PORT', '5555'))
-    except ValueError:
-        PORT = 5555
-    app.run(HOST, PORT)
+    create_app(config_class=Config).run("localhost", 8888)

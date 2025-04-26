@@ -34,7 +34,6 @@ class RoomsService:
         Add a new room.
         """
         try:
-            # Create and add the room
             room = Room(
                 room_number=request.get("room_number"),
                 hotel_id=request.get("hotel_id"),
@@ -46,8 +45,6 @@ class RoomsService:
             db.session.add(room)
             db.session.commit()
             
-            # Return the dictionary representation of the room
-            # This allows apiflask to properly serialize the response
             room_schema = RoomsResponseSchema()
             return True, room
         except Exception as ex:
@@ -59,7 +56,6 @@ class RoomsService:
         Update a room by its ID.
         """
         try:
-            # Fetch the room and update its fields
             room = db.session.get(Room, rid)
             if room:
                 if "room_number" in request:
