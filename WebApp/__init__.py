@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
 from config import Config
 from WebApp.extensions import db
+from flask import render_template
 
 def create_app(config_class=Config):
     app = APIFlask(__name__, json_errors=True, docs_path="/swagger", title="Hotel Guru Api")
@@ -18,5 +19,13 @@ def create_app(config_class=Config):
 
     from WebApp.blueprints import bp as main_bp
     app.register_blueprint(main_bp, url_prefix="/api")
+
+    from WebApp.routes import register_routes
+    register_routes(app)
+
+    @app.route('/')
+    def home():
+        return render_template('index.html')  
+
 
     return app

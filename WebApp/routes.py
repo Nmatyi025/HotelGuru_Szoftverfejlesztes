@@ -23,8 +23,8 @@ def register_routes(app):
 
     class User:
         def __init__(self, name, email):
-            self.name = name
-            self.email = email
+           self.name = name
+           self.email = email
             
         def get_email(self):
             return self.email
