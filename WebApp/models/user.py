@@ -31,7 +31,7 @@ class User(db.Model):
         "Booking", back_populates="user", cascade="all, delete-orphan", lazy="selectin")
 
     def __repr__(self) -> str:
-        return f"<User id={self.id}, username={self.username}>"
+        return f"<User id={self.id}, username={self.name}>"
 
     def set_password(self, password: str) -> None:
         self.password = generate_password_hash(password)

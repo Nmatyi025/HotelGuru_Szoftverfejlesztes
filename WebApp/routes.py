@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, current_app
 from WebApp.extensions import db
 from WebApp.models import User
 
-from WebApp.forms.loginForm import LoginForm
+from WebApp.forms.loginForm import LoginForm, RegistrationForm
 
 def register_routes(app):
     @app.route("/login", methods=["GET", "POST"])
@@ -51,3 +51,21 @@ def register_routes(app):
                     title="Python Web",
                     user=user, 
                     posts=posts)
+    
+    @app.route("/register", methods=["GET", "POST"])
+    def register():
+        form = RegistrationForm()
+        if form.validate_on_submit():
+            db_user = db.session.execute(db.select(User).filter_by(
+                username=form.username.data)).scalar_one_or_none()
+            if db_user:
+                flash(f"User {form.username.data} already exists!")
+                return redirect("/index")
+            else:
+                new_user = User(username=form.username.data, email=form.email.data, password=form.password.data)
+                db.session.add(new_user)
+                db.session.commit()
+                flash(f"User {form.username.data} registered successfully!")
+                return redirect("/index")
+        return render_template("register.html", form=form)
+        
