@@ -97,3 +97,37 @@ class UserService:
         if user is None:
             return False, "User not found!"
         return True, RoleSchema().dump(obj=user.roles, many=True)
+
+    @classmethod
+    def add_role_to_user(cls, user_id, role_name):
+        user = db.session.get(User, user_id)
+        if not user:
+            return False, "User not found"
+        
+        role = db.session.query(Role).filter_by(name=role_name).first()
+        if not role:
+            return False, f"Role '{role_name}' not found"
+        
+        if role in user.roles:
+            return True, f"User already has the role '{role_name}'"
+        
+        user.roles.append(role)
+        db.session.commit()
+        return True, f"Role '{role_name}' added to user"
+
+    @classmethod
+    def remove_role_from_user(cls, user_id, role_name):
+        user = db.session.get(User, user_id)
+        if not user:
+            return False, "User not found"
+        
+        role = db.session.query(Role).filter_by(name=role_name).first()
+        if not role:
+            return False, f"Role '{role_name}' not found"
+        
+        if role not in user.roles:
+            return True, f"User doesn't have the role '{role_name}'"
+        
+        user.roles.remove(role)
+        db.session.commit()
+        return True, f"Role '{role_name}' removed from user"

@@ -1,4 +1,4 @@
-# models/user.py
+
 from __future__ import annotations
 from WebApp import db
 from sqlalchemy.orm import Mapped, mapped_column, relationship

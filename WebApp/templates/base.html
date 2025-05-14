@@ -10,7 +10,7 @@
     {% block styles %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation Bar -->
+    <!-- Nav Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="/index">Hotel Guru</a>
@@ -26,17 +26,17 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/hotels">Hotels</a>
                     </li>
-                    {% if user and has_role(user, 'Administrator') %}
+                    {% if user and 'Administrator' in user.roles %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" 
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            Admin
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-shield-lock"></i> Admin
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                            <li><a class="dropdown-item" href="/admin/hotels">Manage Hotels</a></li>
-                            <li><a class="dropdown-item" href="/admin/rooms">Manage Rooms</a></li>
-                            <li><a class="dropdown-item" href="/admin/bookings">All Bookings</a></li>
-                            <li><a class="dropdown-item" href="/admin/users">Manage Users</a></li>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin_hotels') }}">Manage Hotels</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin_users') }}">Manage Users</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin_bookings') }}">All Bookings</a></li>
                         </ul>
                     </li>
                     {% endif %}
@@ -50,7 +50,6 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
                                 {% if user and has_role(user, 'Administrator') %}
-                                    <!-- Admin-only UI elements -->
                                     <li><a class="dropdown-item" href="/admin/hotels">Manage Hotels</a></li>
                                     <li><a class="dropdown-item" href="/admin/users">Manage Users</a></li>
                                 {% endif %}

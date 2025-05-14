@@ -1,4 +1,4 @@
-# models/booking.py
+
 from __future__ import annotations
 from datetime import datetime, date
 from WebApp import db
@@ -14,6 +14,9 @@ class Booking(db.Model):
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
     created_on: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
+    selected_services = db.Column(db.JSON, nullable=True)
+    service_total = db.Column(db.Float, default=0.0)
+    total_price = db.Column(db.Float, default=0.0)
 
     user: Mapped["User"] = relationship(
         "User", back_populates="bookings", lazy="joined"

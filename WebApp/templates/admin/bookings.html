@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-calendar-check"></i> All Bookings</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Guest</th>
+                            <th>Hotel / Room</th>
+                            <th>Dates</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.id }}</td>
+                            <td>
+                                {{ booking.user.name }}<br>
+                                <small>{{ booking.user.email }}</small>
+                            </td>
+                            <td>
+                                {{ booking.room.hotel.name }}<br>
+                                <small>Room {{ booking.room.room_number }}</small>
+                            </td>
+                            <td>
+                                {{ booking.start_date.strftime('%Y-%m-%d') }} to<br>
+                                {{ booking.end_date.strftime('%Y-%m-%d') }}
+                            </td>
+                            <td>
+                                <span class="badge {% if booking.status == 'confirmed' %}bg-success{% elif booking.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ booking.status|capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('booking_confirmation', booking_id=booking.id) }}" class="btn btn-sm btn-outline-primary me-1">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ url_for('admin_edit_booking', booking_id=booking.id) }}" class="btn btn-sm btn-outline-secondary me-1">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% if booking.status == 'confirmed' or booking.status == 'pending' %}
+                                <form method="POST" action="{{ url_for('admin_cancel_booking', booking_id=booking.id) }}" 
+                                      style="display: inline-block;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

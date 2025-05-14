@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-building"></i> Manage Hotels</h1>
+    
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_add_hotel') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Hotel
+            </a>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Rating</th>
+                            <th>Rooms</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hotel in hotels %}
+                        <tr>
+                            <td>{{ hotel.id }}</td>
+                            <td>{{ hotel.name }}</td>
+                            <td>{{ hotel.city }}, {{ hotel.country }}</td>
+                            <td>
+                                {% for i in range(5) %}
+                                    {% if i < hotel.rating|int %}
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    {% elif i < hotel.rating %}
+                                        <i class="bi bi-star-half text-warning"></i>
+                                    {% else %}
+                                        <i class="bi bi-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                {{ hotel.rating }}
+                            </td>
+                            <td>
+                                {{ hotel.rooms|length }}
+                                <a href="{{ url_for('admin_hotel_rooms', hotel_id=hotel.id) }}" class="btn btn-sm btn-outline-info ms-2">
+                                    <i class="bi bi-door-closed"></i> Manage
+                                </a>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('hotel_detail', hotel_id=hotel.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    <a href="{{ url_for('admin_edit_hotel', hotel_id=hotel.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            onclick="confirmDelete({{ hotel.id }}, '{{ hotel.name }}')">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        
+                        {% if not hotels %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                No hotels found. 
+                                <a href="{{ url_for('admin_add_hotel') }}">Add your first hotel</a>.
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete <span id="hotelName"></span>?
+                    <p class="text-danger mt-2">This action cannot be undone and will remove all rooms associated with this hotel.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete Hotel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    function confirmDelete(hotelId, hotelName) {
+        document.getElementById('hotelName').textContent = hotelName;
+        document.getElementById('deleteForm').action = "{{ url_for('admin_delete_hotel', hotel_id=0) }}".replace('0', hotelId);
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+</script>
+{% endblock %}

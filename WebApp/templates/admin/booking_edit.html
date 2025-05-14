@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-pencil-square"></i> Edit Booking #{{ booking.id }}</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h5>Guest Information</h5>
+                                <p><strong>Name:</strong> {{ guest.name }}</p>
+                                <p><strong>Email:</strong> {{ guest.email }}</p>
+                                <p><strong>Phone:</strong> {{ guest.phone }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Hotel & Room</h5>
+                                <p><strong>Hotel:</strong> {{ hotel.name }}</p>
+                                <p><strong>Location:</strong> {{ hotel.city }}, {{ hotel.country }}</p>
+                                <p><strong>Room:</strong> {{ room.room_number }}</p>
+                                <p><strong>Price:</strong> ${{ room.price_per_night }} per night</p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label">Check-in Date*</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" 
+                                       value="{{ booking.start_date.strftime('%Y-%m-%d') }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label">Check-out Date*</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" 
+                                       value="{{ booking.end_date.strftime('%Y-%m-%d') }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Booking Status*</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="pending" {% if booking.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="confirmed" {% if booking.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                <option value="cancelled" {% if booking.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                <option value="completed" {% if booking.status == 'completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <p class="mb-1"><strong>Created on:</strong> {{ booking.created_on.strftime('%Y-%m-%d %H:%M') }}</p>
+                            <p class="mb-1"><strong>Current Status:</strong> <span class="badge {% if booking.status == 'confirmed' %}bg-success{% elif booking.status == 'cancelled' %}bg-danger{% elif booking.status == 'completed' %}bg-secondary{% else %}bg-warning{% endif %}">{{ booking.status|capitalize }}</span></p>
+                            <p class="mb-1"><strong>Stay Duration:</strong> {{ nights }} night(s)</p>
+                            <p class="mb-1"><strong>Total Price:</strong> ${{ room.price_per_night * nights }}</p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('admin_bookings') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Bookings
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Update Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Notes</h5>
+                    <ul class="small">
+                        <li>Changing dates will check for conflicts with other bookings</li>
+                        <li>Setting status to "Cancelled" will free up the room for those dates</li>
+                        <li>The guest will not be notified automatically of changes</li>
+                        <li>Price adjustments are calculated automatically based on stay duration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

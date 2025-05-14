@@ -6,11 +6,10 @@ from config import Config
 from WebApp.extensions import db
 from flask import render_template
 
-def create_app(config_class=Config):
+def create_app(test_config=None):
     app = APIFlask(__name__, json_errors=True, docs_path="/swagger", title="Hotel Guru Api")
 
-
-    app.config.from_object(config_class)
+    app.config.from_object(Config)
 
     db.init_app(app)
 
@@ -23,17 +22,16 @@ def create_app(config_class=Config):
     from WebApp.routes import register_routes
     register_routes(app)
 
-    @app.context_processor
-    def utility_processor():
-        def has_role(user, role_name):
-            if not user or 'roles' not in user:
-                return False
-            return role_name in user['roles']
-        return dict(has_role=has_role)
+    @app.template_filter('has_role')
+    def has_role_filter(user, role_name):
+        if not user or 'roles' not in user:
+            return False
+        return role_name in user['roles']
+
+    app.jinja_env.globals['has_role'] = has_role_filter
 
     @app.route('/')
     def home():
         return render_template('index.html')  
-
 
     return app

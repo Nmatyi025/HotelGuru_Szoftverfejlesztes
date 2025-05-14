@@ -1,4 +1,3 @@
-# models/hotel.py
 from __future__ import annotations
 from datetime import datetime
 from WebApp import db

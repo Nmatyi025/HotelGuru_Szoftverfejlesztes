@@ -15,7 +15,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: -1.5rem; /* Remove space between navbar and hero */
+            margin-top: -1.5rem;
         }
         .search-container {
             width: 80%;
@@ -41,7 +41,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <!-- Hero Section with Search Bar -->
     <section class="hero-section">
         <div class="search-container">
             <h1 class="text-white text-center mb-4">Find Your Perfect Stay</h1>
@@ -71,7 +70,6 @@
         </div>
     </section>
 
-    <!-- Hotel Listings -->
     <div class="container mt-5 mb-5">
         <h2 class="mb-4">Popular Hotels</h2>
         
@@ -98,14 +96,11 @@
     </div>
 {% endblock %}
 
-<!-- In your templates (base.html, index.html, etc.) -->
 {% if user and has_role(user, 'Administrator') %}
-    <!-- Admin-only UI elements -->
     <li><a class="dropdown-item" href="/admin/hotels">Manage Hotels</a></li>
     <li><a class="dropdown-item" href="/admin/users">Manage Users</a></li>
 {% endif %}
 
-<!-- Regular user features -->
 {% if user %}
     <li><a class="dropdown-item" href="/bookings">My Bookings</a></li>
 {% endif %}

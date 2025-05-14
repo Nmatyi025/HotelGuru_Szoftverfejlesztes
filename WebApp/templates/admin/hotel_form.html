@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">
+        {% if is_edit %}
+        <i class="bi bi-pencil-square"></i> Edit Hotel: {{ hotel.name }}
+        {% else %}
+        <i class="bi bi-plus-circle"></i> Add New Hotel
+        {% endif %}
+    </h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Hotel Name*</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ hotel.name if hotel else '' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address*</label>
+                            <input type="text" class="form-control" id="address" name="address" 
+                                   value="{{ hotel.address if hotel else '' }}" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="city" class="form-label">City*</label>
+                                <input type="text" class="form-control" id="city" name="city" 
+                                       value="{{ hotel.city if hotel else '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="country" class="form-label">Country*</label>
+                                <input type="text" class="form-control" id="country" name="country" 
+                                       value="{{ hotel.country if hotel else '' }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="5">{{ hotel.description if hotel else '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating (0-5)</label>
+                            <input type="number" class="form-control" id="rating" name="rating" 
+                                   min="0" max="5" step="0.1" value="{{ hotel.rating if hotel else 0 }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="photo_url" class="form-label">Photo URL</label>
+                            <input type="text" class="form-control" id="photo_url" name="photo_url" 
+                                   value="{{ hotel.photo_urls[0] if hotel and hotel.photo_urls else '' }}">
+                            {% if hotel and hotel.photo_urls %}
+                            <div class="mt-2">
+                                <img src="{{ hotel.photo_urls[0] }}" 
+                                     class="img-thumbnail" style="max-width: 200px" alt="{{ hotel.name }}">
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Amenities</label>
+                            <div class="row">
+                                {% for amenity in amenities %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="amenity{{ amenity.id }}" name="amenities" 
+                                               value="{{ amenity.id }}"
+                                               {% if hotel and amenity in hotel.amenities %}checked{% endif %}>
+                                        <label class="form-check-label" for="amenity{{ amenity.id }}">
+                                            <i class="bi bi-{{ amenity.icon }}"></i> {{ amenity.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('admin_hotels') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Hotels
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> 
+                                {% if is_edit %}Update Hotel{% else %}Add Hotel{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Tips</h5>
+                    <ul class="small">
+                        <li>All fields marked with * are required</li>
+                        <li>Adding amenities makes your hotel more appealing to guests</li>
+                        <li>A good description will help improve bookings</li>
+                        <li>Use high-quality images for better presentation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

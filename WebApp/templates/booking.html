@@ -2,7 +2,6 @@
 
 {% block content %}
 <div class="container mt-5">
-    <!-- Breadcrumb Navigation -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/index">Home</a></li>
@@ -13,7 +12,6 @@
     </nav>
 
     <div class="row">
-        <!-- Booking Form Column -->
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
@@ -88,6 +86,9 @@
                             </label>
                         </div>
 
+                        <div id="selected-services-container">
+                        </div>
+
                         <button type="submit" class="btn btn-primary btn-lg w-100" id="booking-button" 
                                 {% if not nights or nights <= 0 %}disabled{% endif %}>
                             Confirm Booking
@@ -97,7 +98,6 @@
             </div>
         </div>
 
-        <!-- Booking Summary Column -->
         <div class="col-md-4">
             <div class="card shadow">
                 <div class="card-header bg-secondary text-white">
@@ -115,20 +115,31 @@
                     <p>{{ room.description }}</p>
 
                     {% if room.additional_services %}
-                    <h6 class="mt-3">Included Amenities:</h6>
-                    <ul class="list-group list-group-flush mb-3">
-                        {% for service in room.additional_services %}
-                        <li class="list-group-item px-0">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            {{ service.name }}
-                            {% if service.price > 0 %}
-                            <span class="text-muted">(+${{ service.price }})</span>
-                            {% else %}
-                            <span class="text-success">(Free)</span>
-                            {% endif %}
-                        </li>
-                        {% endfor %}
-                    </ul>
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5>Additional Services</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for service in room.additional_services %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input service-checkbox" type="checkbox" 
+                                       name="selected_services" value="{{ service.id }}" 
+                                       id="service-{{ service.id }}" data-price="{{ service.price }}">
+                                <label class="form-check-label" for="service-{{ service.id }}">
+                                    {{ service.name }}
+                                    {% if service.price > 0 %}
+                                    <span class="text-primary">(+${{ service.price }})</span>
+                                    {% else %}
+                                    <span class="text-success">(Free)</span>
+                                    {% endif %}
+                                    {% if service.description %}
+                                    <small class="d-block text-muted">{{ service.description }}</small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                     {% endif %}
 
                     <div class="alert alert-secondary">
@@ -155,19 +166,15 @@
         const pricePerNight = {{ room.price_per_night }};
         const pricingInfo = document.querySelector('.alert-info, .alert-warning');
         
-        // Initialize dates from server values
         let checkIn = "{{ check_in }}";
         let checkOut = "{{ check_out }}";
         
-        // Call validation function on page load
         validateDates();
         
-        // Add event listeners for date changes
         checkInInput.addEventListener('change', function() {
             checkIn = this.value;
             validateDates();
             
-            // Clear any error messages when user selects new dates
             const errorAlert = document.querySelector('.alert-danger');
             if (errorAlert) {
                 errorAlert.style.display = 'none';
@@ -178,7 +185,6 @@
             checkOut = this.value;
             validateDates();
             
-            // Clear any error messages when user selects new dates
             const errorAlert = document.querySelector('.alert-danger');
             if (errorAlert) {
                 errorAlert.style.display = 'none';
@@ -196,7 +202,6 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
-            // Validate dates
             if (checkInDate < today) {
                 alert("Check-in date cannot be in the past.");
                 bookingButton.disabled = true;
@@ -209,12 +214,10 @@
                 return;
             }
             
-            // Calculate nights
             const timeDiff = checkOutDate - checkInDate;
             const nights = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
             const totalPrice = nights * pricePerNight;
             
-            // Update pricing info in the form
             if (pricingInfo) {
                 pricingInfo.innerHTML = `
                 <div class="alert alert-info">
@@ -224,9 +227,63 @@
                 </div>`;
             }
             
-            // Enable the booking button
             bookingButton.disabled = false;
         }
+        
+        const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
+        serviceCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateTotalPrice);
+        });
+        
+        function updateTotalPrice() {
+            if (!checkIn || !checkOut) {
+                return;
+            }
+            
+            const checkInDate = new Date(checkIn);
+            const checkOutDate = new Date(checkOut);
+            
+            const timeDiff = checkOutDate - checkInDate;
+            const nights = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            
+            let totalPrice = nights * pricePerNight;
+            let serviceTotal = 0;
+            
+            serviceCheckboxes.forEach(checkbox => {
+                if (checkbox.checked && checkbox.dataset.price) {
+                    serviceTotal += parseFloat(checkbox.dataset.price);
+                }
+            });
+            
+            totalPrice += serviceTotal;
+            
+            if (pricingInfo) {
+                pricingInfo.innerHTML = `
+                <div class="alert alert-info">
+                    <p class="mb-1"><strong>Stay Duration:</strong> ${nights} night(s)</p>
+                    <p class="mb-1"><strong>Room Rate:</strong> $${pricePerNight} per night</p>
+                    <p class="mb-1"><strong>Room Subtotal:</strong> $${nights * pricePerNight}</p>
+                    <p class="mb-1"><strong>Selected Services:</strong> $${serviceTotal}</p>
+                    <p class="mb-1"><strong>Total Amount:</strong> $${totalPrice}</p>
+                </div>`;
+            }
+            
+            bookingButton.disabled = false;
+        }
+
+        document.querySelector('form').addEventListener('submit', function(e) {
+            document.getElementById('selected-services-container').innerHTML = '';
+            
+            serviceCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'selected_services';
+                    hiddenInput.value = checkbox.value;
+                    document.getElementById('selected-services-container').appendChild(hiddenInput);
+                }
+            });
+        });
     });
 </script>
 {% endblock %}

@@ -41,9 +41,9 @@
             z-index: 100;
         }
         .back-btn {
-            position: relative;  /* Changed from absolute */
-            margin-top: 20px;    /* Add some margin */
-            margin-bottom: -20px; /* Pull the content up a bit */
+            position: relative;
+            margin-top: 20px;
+            margin-bottom: -20px;
         }
         .rating-badge {
             font-size: 1.2rem;
@@ -59,15 +59,12 @@
 
 {% block content %}
 <div class="container mt-4">
-    <!-- Breadcrumb Navigation -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/hotels">Hotels</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ hotel.name }}</li>
         </ol>
     </nav>
-    
-    <!-- Hotel Header -->
     <div class="row mb-4">
         <div class="col-md-8">
             <h1>{{ hotel.name }}</h1>
@@ -80,11 +77,9 @@
             <span class="badge bg-success rating-badge">{{ hotel.rating }} ★</span>
         </div>
     </div>
-    
-    <!-- Hotel Gallery -->
     <div class="row mb-4">
         <div class="col-md-8">
-            <div class="hotel-image" style="background-image: url('{{ hotel.image_url | default('https://source.unsplash.com/random/800x600/?hotel') }}');"></div>
+            <div class="hotel-image" style="background-image: url('{{ hotel.image_url | default('https://media.istockphoto.com/id/472899538/photo/downtown-cleveland-hotel-entrance-and-waiting-taxi-cab.jpg?s=612x612&w=0&k=20&c=rz-WSe_6gKfkID6EL9yxCdN_UIMkXUBsr67884j-X9o=') }}');"></div>
         </div>
         <div class="col-md-4">
             <div class="row g-2">
@@ -106,13 +101,10 @@
             </div>
         </div>
     </div>
-    
-    <!-- Hotel Description -->
     <div class="card mb-5">
         <div class="card-body">
             <h3 class="card-title mb-4">About this hotel</h3>
             <p class="card-text">{{ hotel.description }}</p>
-            
             <h4 class="mt-4 mb-3">Hotel Amenities</h4>
             <div class="row">
                 {% if hotel.amenities %}
@@ -134,8 +126,6 @@
             </div>
         </div>
     </div>
-    
-    <!-- Add this just above the Available Rooms Section -->
     {% if selected_dates.check_in %}
         <div class="alert alert-info mb-4">
             <i class="bi bi-calendar-check me-2"></i>
@@ -143,10 +133,7 @@
             <a href="/hotel/{{ hotel.id }}" class="btn btn-sm btn-outline-secondary ms-3">Clear dates</a>
         </div>
     {% endif %}
-
-    <!-- Available Rooms Section -->
     <h2 class="mb-4">Available Rooms</h2>
-    
     {% for room in rooms %}
         {% if room.available %}
             <div class="card room-card mb-3">
@@ -162,8 +149,6 @@
                                 <span class="text-primary fw-bold">${{ room.price_per_night }} / night</span>
                             </div>
                             <p class="card-text">{{ room.description }}</p>
-                            
-                            <!-- Room Amenities from Database -->
                             <div class="amenities my-3">
                                 <h6>Room Amenities</h6>
                                 <div class="row">
@@ -191,8 +176,6 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
-                            <!-- Find the Book This Room button in your room card section -->
                             <div class="d-flex justify-content-end mt-3">
                                 <a href="/book?room_id={{ room.id }}{% if selected_dates.check_in %}&check_in={{ selected_dates.check_in }}&check_out={{ selected_dates.check_out }}{% endif %}" class="btn btn-primary">Book This Room</a>
                             </div>
@@ -202,17 +185,13 @@
             </div>
         {% endif %}
     {% endfor %}
-    
     {% if rooms|length == 0 or rooms|selectattr('available')|list|length == 0 %}
     <div class="alert alert-info">
         No available rooms at this time. Please try another date or hotel.
     </div>
     {% endif %}
 </div>
-
 {% endblock %}
-
-<!-- Bootstrap JS -->
 {% block scripts %}
 {{ super() }}
 {% endblock %}

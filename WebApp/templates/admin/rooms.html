@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-door-closed"></i> Rooms for {{ hotel.name }}</h1>
+    
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <a href="{{ url_for('admin_hotels') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Hotels
+            </a>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_add_room', hotel_id=hotel.id) }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Room
+            </a>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="row">
+        {% if rooms %}
+            {% for room in rooms %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm {% if not room.available %}bg-light{% endif %}">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="{{ room.photo_urls[0] if room.photo_urls else 'https://via.placeholder.com/150?text=Room' }}" 
+                                     class="img-fluid rounded-start h-100 object-fit-cover" alt="Room {{ room.room_number }}">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title">Room {{ room.room_number }}</h5>
+                                        {% if room.available %}
+                                            <span class="badge bg-success">Available</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Unavailable</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="card-text text-primary fw-bold">${{ room.price_per_night }} per night</p>
+                                    <p class="card-text small">{{ room.description|truncate(100) }}</p>
+                                    
+                                    {% if room.additional_services %}
+                                        <p class="card-text small text-muted">
+                                            <strong>Services:</strong>
+                                            {% for service in room.additional_services %}
+                                                {{ service.name }}{% if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex justify-content-end mt-2">
+                                        <a href="{{ url_for('admin_edit_room', room_id=room.id) }}" class="btn btn-sm btn-outline-secondary me-2">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="confirmDeleteRoom({{ room.id }}, '{{ room.room_number }}')">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No rooms have been added to this hotel yet. 
+                    <a href="{{ url_for('admin_add_room', hotel_id=hotel.id) }}">Add your first room</a>.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="modal fade" id="deleteRoomModal" tabindex="-1" aria-labelledby="deleteRoomModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteRoomModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete Room <span id="roomNumber"></span>?
+                    <p class="text-danger mt-2">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteRoomForm" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete Room</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    function confirmDeleteRoom(roomId, roomNumber) {
+        document.getElementById('roomNumber').textContent = roomNumber;
+        document.getElementById('deleteRoomForm').action = "{{ url_for('admin_delete_room', room_id=0) }}".replace('0', roomId);
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteRoomModal'));
+        deleteModal.show();
+    }
+</script>
+{% endblock %}

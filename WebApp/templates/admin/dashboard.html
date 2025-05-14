@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-speedometer"></i> Admin Dashboard</h1>
+    
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4">{{ hotels|length }}</h3>
+                    <p class="mb-0">Hotels</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Manage Hotels</span>
+                    <a href="{{ url_for('admin_hotels') }}" class="text-white">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4">{{ users|length }}</h3>
+                    <p class="mb-0">Users</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Manage Users</span>
+                    <a href="{{ url_for('admin_users') }}" class="text-white">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4">{{ bookings|length }}</h3>
+                    <p class="mb-0">Bookings</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>View Bookings</span>
+                    <a href="{{ url_for('admin_bookings') }}" class="text-white">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
