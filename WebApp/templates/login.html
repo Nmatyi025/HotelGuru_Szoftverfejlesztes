@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+<<<<<<< HEAD
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hotel Guru</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .login-container {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-banner {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/random/1200x800/?hotel-lobby');
+            background-size: cover;
+            background-position: center;
+            height: 200px;
+            border-radius: 10px 10px 0 0;
+            margin: -30px -30px 30px -30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .form-floating {
+            margin-bottom: 20px;
+        }
+        .btn-login {
+            padding: 12px 0;
+            font-weight: 600;
+        }
+    </style>
+=======
+    <title>Login - {{title}}</title>
+    <div></div>
+>>>>>>> f66999a644d44ddfc7bc85e6ffd4eef40015787f
+</head>
+<body>
+{% extends "base.html" %}
+
+{% block content %}
+<<<<<<< HEAD
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="login-container">
+                <div class="login-banner">
+                    <h2 class="text-white fw-bold">Welcome Back</h2>
+                </div>
+                <div class="login-header">
+                    <h3>Sign in to your account</h3>
+                    <p class="text-muted">Access your bookings and preferences</p>
+                </div>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form action="{{ url_for('login') }}" method="post" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-floating">
+                        {{ form.username(class_="form-control", placeholder="Username", id="username") }}
+                        <label for="username">Username</label>
+                        {% for error in form.username.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-floating">
+                        {{ form.password(class_="form-control", placeholder="Password", id="password") }}
+                        <label for="password">Password</label>
+                        {% for error in form.password.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        {{ form.remember_me(class_="form-check-input", id="remember-me") }}
+                        <label class="form-check-label" for="remember-me">
+                            Remember me
+                        </label>
+                    </div>
+                    
+                    {{ form.submit(class_="btn btn-primary w-100 btn-login") }}
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p>Don't have an account? <a href="{{ url_for('register') }}" class="text-decoration-none">Register</a></p>
+                    <p><a href="#" class="text-decoration-none small">Forgot password?</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+=======
+    <h3>Sign In</h3>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.name.label}}<br />
+            {{ form.name(size = 32)}}<br />
+            {% for error in form.name.errors %}
+                <span style="color:red;">[{{error}}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label}}<br />
+            {{ form.password(size=32)}}<br />
+            {% for error in form.password.errors %}
+            <span style="color:red;">[{{error}}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.remember_me()}} {{ form.remember_me.label}}
+        </p>
+        <p>
+            {{ form.submit()}}
+        </p>
+     </form>
+     
+     {% endblock %}
+>>>>>>> f66999a644d44ddfc7bc85e6ffd4eef40015787f
+</body>
+</html>

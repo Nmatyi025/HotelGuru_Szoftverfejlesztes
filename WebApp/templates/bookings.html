@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Bookings Sidebar -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <div class="avatar mb-3">
+                        <i class="bi bi-person-circle" style="font-size: 5rem;"></i>
+                    </div>
+                    <h4>{{ user.username }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    
+                    {% if has_role(user, 'Administrator') %}
+                    <span class="badge bg-danger">Administrator</span>
+                    {% elif has_role(user, 'Hotel_Administrator') %}
+                    <span class="badge bg-warning">Hotel Admin</span>
+                    {% else %}
+                    <span class="badge bg-info">User</span>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="list-group list-group-flush text-start">
+                        <a href="{{ url_for('user_profile') }}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-person me-2"></i> My Profile
+                        </a>
+                        <a href="{{ url_for('user_bookings') }}" class="list-group-item list-group-item-action active">
+                            <i class="bi bi-calendar-check me-2"></i> My Bookings
+                        </a>
+                        <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action text-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bookings Main Content -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">My Bookings</h4>
+                    <a href="{{ url_for('hotels_list') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-search"></i> Find New Hotels
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% if bookings %}
+                        <ul class="nav nav-pills mb-3" id="bookings-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="upcoming-tab" data-bs-toggle="pill" 
+                                        data-bs-target="#upcoming" type="button" role="tab" 
+                                        aria-controls="upcoming" aria-selected="true">
+                                    Upcoming
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="active-tab" data-bs-toggle="pill" 
+                                        data-bs-target="#active" type="button" role="tab" 
+                                        aria-controls="active" aria-selected="false">
+                                    Active
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="past-tab" data-bs-toggle="pill" 
+                                        data-bs-target="#past" type="button" role="tab" 
+                                        aria-controls="past" aria-selected="false">
+                                    Past
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="bookings-tab-content">
+                            <!-- Upcoming Bookings -->
+                            <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+                                {% set has_upcoming = false %}
+                                {% for booking in bookings %}
+                                    {% if booking.is_upcoming and booking.status != 'cancelled' %}
+                                        {% set has_upcoming = true %}
+                                        <div class="card mb-3 booking-card">
+                                            <div class="row g-0">
+                                                <div class="col-md-4">
+                                                    <img src="{{ booking.hotel.image_url | default('https://source.unsplash.com/random/300x200/?hotel') }}" 
+                                                         class="img-fluid rounded-start h-100 object-fit-cover" alt="{{ booking.hotel.name }}">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between">
+                                                            <h5 class="card-title">{{ booking.hotel.name }}</h5>
+                                                            <span class="badge bg-primary">{{ booking.status|title }}</span>
+                                                        </div>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-geo-alt"></i> {{ booking.hotel.location }}
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-calendar-check"></i> 
+                                                            {{ booking.start_date.strftime('%b %d, %Y') }} - 
+                                                            {{ booking.end_date.strftime('%b %d, %Y') }}
+                                                            <small class="text-muted">({{ booking.nights }} nights)</small>
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-door-closed"></i> Room {{ booking.room.room_number }}
+                                                            <span class="ms-3 text-primary">${{ booking.total_price }}</span>
+                                                        </p>
+                                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                                            <a href="{{ url_for('booking_confirmation', booking_id=booking.id) }}" 
+                                                               class="btn btn-outline-primary btn-sm">
+                                                                View Details
+                                                            </a>
+                                                            <form action="{{ url_for('cancel_booking', booking_id=booking.id) }}" method="POST"
+                                                                  onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                                    Cancel Booking
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if not has_upcoming %}
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> You don't have any upcoming bookings.
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Active Bookings -->
+                            <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
+                                {% set has_active = false %}
+                                {% for booking in bookings %}
+                                    {% if booking.is_active and booking.status != 'cancelled' %}
+                                        {% set has_active = true %}
+                                        <div class="card mb-3 booking-card">
+                                            <div class="card-header bg-success text-white">
+                                                Currently staying
+                                            </div>
+                                            <div class="row g-0">
+                                                <div class="col-md-4">
+                                                    <img src="{{ booking.hotel.image_url | default('https://source.unsplash.com/random/300x200/?hotel') }}" 
+                                                         class="img-fluid rounded-start h-100 object-fit-cover" alt="{{ booking.hotel.name }}">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">{{ booking.hotel.name }}</h5>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-geo-alt"></i> {{ booking.hotel.location }}
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-calendar-check"></i> 
+                                                            {{ booking.start_date.strftime('%b %d, %Y') }} - 
+                                                            {{ booking.end_date.strftime('%b %d, %Y') }}
+                                                            <small class="text-muted">({{ booking.nights }} nights)</small>
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-door-closed"></i> Room {{ booking.room.room_number }}
+                                                            <span class="ms-3 text-primary">${{ booking.total_price }}</span>
+                                                        </p>
+                                                        <a href="{{ url_for('booking_confirmation', booking_id=booking.id) }}" 
+                                                           class="btn btn-outline-primary btn-sm mt-3">
+                                                            View Details
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if not has_active %}
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> You don't have any active stays.
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Past Bookings -->
+                            <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+                                {% set has_past = false %}
+                                {% for booking in bookings %}
+                                    {% if booking.is_past or booking.status == 'cancelled' %}
+                                        {% set has_past = true %}
+                                        <div class="card mb-3 booking-card">
+                                            <div class="row g-0">
+                                                <div class="col-md-4">
+                                                    <img src="{{ booking.hotel.image_url | default('https://source.unsplash.com/random/300x200/?hotel') }}" 
+                                                         class="img-fluid rounded-start h-100 object-fit-cover" alt="{{ booking.hotel.name }}">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between">
+                                                            <h5 class="card-title">{{ booking.hotel.name }}</h5>
+                                                            {% if booking.status == 'cancelled' %}
+                                                                <span class="badge bg-danger">Cancelled</span>
+                                                            {% else %}
+                                                                <span class="badge bg-secondary">Completed</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-geo-alt"></i> {{ booking.hotel.location }}
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-calendar-check"></i> 
+                                                            {{ booking.start_date.strftime('%b %d, %Y') }} - 
+                                                            {{ booking.end_date.strftime('%b %d, %Y') }}
+                                                            <small class="text-muted">({{ booking.nights }} nights)</small>
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <i class="bi bi-door-closed"></i> Room {{ booking.room.room_number }}
+                                                            <span class="ms-3 text-primary">${{ booking.total_price }}</span>
+                                                        </p>
+                                                        <a href="{{ url_for('booking_confirmation', booking_id=booking.id) }}" 
+                                                           class="btn btn-outline-primary btn-sm mt-3">
+                                                            View Details
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if not has_past %}
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> You don't have any past bookings.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x" style="font-size: 4rem; color: #ddd;"></i>
+                            <h5 class="mt-3">No Bookings Found</h5>
+                            <p class="text-muted">You haven't made any bookings yet.</p>
+                            <a href="{{ url_for('hotels_list') }}" class="btn btn-primary mt-3">
+                                Find and Book Hotels
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
