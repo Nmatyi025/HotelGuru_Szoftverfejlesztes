@@ -5,6 +5,7 @@ from WebApp import db
 from typing import List, Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Float, JSON
+from WebApp.models.amenity import hotel_amenities
 
 class Hotel(db.Model):
     __tablename__ = "hotels"
@@ -20,6 +21,10 @@ class Hotel(db.Model):
 
     rooms: Mapped[List["Room"]] = relationship(
         "Room", back_populates="hotel", cascade="all, delete-orphan", lazy="selectin"
+    )
+
+    amenities: Mapped[List["Amenity"]] = relationship(
+        "Amenity", secondary=hotel_amenities, back_populates="hotels", lazy="selectin"
     )
 
     def __repr__(self) -> str:

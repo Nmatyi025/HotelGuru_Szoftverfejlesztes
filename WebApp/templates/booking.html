@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/index">Home</a></li>
+            <li class="breadcrumb-item"><a href="/hotels">Hotels</a></li>
+            <li class="breadcrumb-item"><a href="/hotel/{{ hotel.id }}">{{ hotel.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Book Room {{ room.room_number }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Booking Form Column -->
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3>Complete Your Booking</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('book_room', room_id=room.id) }}">
+                        {% if dates_unavailable %}
+                        <div class="alert alert-danger mb-3">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong>Date Availability Issue:</strong> 
+                            {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                    {{ messages[0] }}
+                                {% else %}
+                                    The selected dates are not available. Please choose different dates.
+                                {% endif %}
+                            {% endwith %}
+                            
+                            {% if unavailable_date_list is defined and unavailable_date_list %}
+                            <div class="mt-2 small">
+                                <strong>Unavailable dates:</strong>
+                                <ul class="mb-0">
+                                    {% for date in unavailable_date_list %}
+                                    <li>{{ date }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="check_in" class="form-label">Check-in Date</label>
+                                <input type="date" class="form-control" id="check_in" name="check_in" 
+                                       value="{{ check_in }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="check_out" class="form-label">Check-out Date</label>
+                                <input type="date" class="form-control" id="check_out" name="check_out" 
+                                       value="{{ check_out }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Guest Name</label>
+                                <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Room Type</label>
+                                <input type="text" class="form-control" value="Room {{ room.room_number }}" readonly>
+                            </div>
+                        </div>
+
+                        {% if nights > 0 %}
+                        <div class="alert alert-info">
+                            <p class="mb-1"><strong>Stay Duration:</strong> {{ nights }} night(s)</p>
+                            <p class="mb-1"><strong>Room Rate:</strong> ${{ room.price_per_night }} per night</p>
+                            <p class="mb-1"><strong>Total Amount:</strong> ${{ total_price }}</p>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            Please select valid check-in and check-out dates to see pricing.
+                        </div>
+                        {% endif %}
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the terms and conditions.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="booking-button" 
+                                {% if not nights or nights <= 0 %}disabled{% endif %}>
+                            Confirm Booking
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Summary Column -->
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h4>Booking Summary</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <img src="{{ room.main_photo_url | default('https://source.unsplash.com/random/600x400/?hotel-room') }}" 
+                             class="img-fluid rounded mb-3" alt="Room {{ room.room_number }}">
+                        <h5>{{ hotel.name }}</h5>
+                        <p><i class="bi bi-geo-alt-fill"></i> {{ hotel.city }}, {{ hotel.country }}</p>
+                    </div>
+
+                    <h6>Room {{ room.room_number }}</h6>
+                    <p>{{ room.description }}</p>
+
+                    {% if room.additional_services %}
+                    <h6 class="mt-3">Included Amenities:</h6>
+                    <ul class="list-group list-group-flush mb-3">
+                        {% for service in room.additional_services %}
+                        <li class="list-group-item px-0">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            {{ service.name }}
+                            {% if service.price > 0 %}
+                            <span class="text-muted">(+${{ service.price }})</span>
+                            {% else %}
+                            <span class="text-success">(Free)</span>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <div class="alert alert-secondary">
+                        <p class="mb-1"><strong>Check-in:</strong> {{ check_in or 'Select date' }}</p>
+                        <p class="mb-1"><strong>Check-out:</strong> {{ check_out or 'Select date' }}</p>
+                        {% if nights > 0 %}
+                        <p class="mb-1"><strong>Total:</strong> ${{ total_price }} for {{ nights }} night(s)</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkInInput = document.getElementById('check_in');
+        const checkOutInput = document.getElementById('check_out');
+        const bookingButton = document.getElementById('booking-button');
+        const pricePerNight = {{ room.price_per_night }};
+        const pricingInfo = document.querySelector('.alert-info, .alert-warning');
+        
+        // Initialize dates from server values
+        let checkIn = "{{ check_in }}";
+        let checkOut = "{{ check_out }}";
+        
+        // Call validation function on page load
+        validateDates();
+        
+        // Add event listeners for date changes
+        checkInInput.addEventListener('change', function() {
+            checkIn = this.value;
+            validateDates();
+            
+            // Clear any error messages when user selects new dates
+            const errorAlert = document.querySelector('.alert-danger');
+            if (errorAlert) {
+                errorAlert.style.display = 'none';
+            }
+        });
+        
+        checkOutInput.addEventListener('change', function() {
+            checkOut = this.value;
+            validateDates();
+            
+            // Clear any error messages when user selects new dates
+            const errorAlert = document.querySelector('.alert-danger');
+            if (errorAlert) {
+                errorAlert.style.display = 'none';
+            }
+        });
+        
+        function validateDates() {
+            if (!checkIn || !checkOut) {
+                bookingButton.disabled = true;
+                return;
+            }
+            
+            const checkInDate = new Date(checkIn);
+            const checkOutDate = new Date(checkOut);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Validate dates
+            if (checkInDate < today) {
+                alert("Check-in date cannot be in the past.");
+                bookingButton.disabled = true;
+                return;
+            }
+            
+            if (checkOutDate <= checkInDate) {
+                alert("Check-out date must be after check-in date.");
+                bookingButton.disabled = true;
+                return;
+            }
+            
+            // Calculate nights
+            const timeDiff = checkOutDate - checkInDate;
+            const nights = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const totalPrice = nights * pricePerNight;
+            
+            // Update pricing info in the form
+            if (pricingInfo) {
+                pricingInfo.innerHTML = `
+                <div class="alert alert-info">
+                    <p class="mb-1"><strong>Stay Duration:</strong> ${nights} night(s)</p>
+                    <p class="mb-1"><strong>Room Rate:</strong> $${pricePerNight} per night</p>
+                    <p class="mb-1"><strong>Total Amount:</strong> $${totalPrice}</p>
+                </div>`;
+            }
+            
+            // Enable the booking button
+            bookingButton.disabled = false;
+        }
+    });
+</script>
+{% endblock %}

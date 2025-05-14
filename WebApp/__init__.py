@@ -23,6 +23,14 @@ def create_app(config_class=Config):
     from WebApp.routes import register_routes
     register_routes(app)
 
+    @app.context_processor
+    def utility_processor():
+        def has_role(user, role_name):
+            if not user or 'roles' not in user:
+                return False
+            return role_name in user['roles']
+        return dict(has_role=has_role)
+
     @app.route('/')
     def home():
         return render_template('index.html')  

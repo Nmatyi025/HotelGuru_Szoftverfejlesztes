@@ -6,3 +6,4 @@ from .role import Role
 from .additional_service import AdditionalService
 from .booking import Booking
 from .availability import Availability
+from .amenity import Amenity, hotel_amenities

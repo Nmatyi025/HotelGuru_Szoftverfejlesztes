@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ hotel.name }} - Hotel Guru</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .hotel-image {
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+        }
+        .thumbnail {
+            width: 100%;
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .thumbnail:hover {
+            opacity: 0.8;
+        }
+        .room-card {
+            transition: transform 0.2s ease;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        .room-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .account-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        .back-btn {
+            position: relative;  /* Changed from absolute */
+            margin-top: 20px;    /* Add some margin */
+            margin-bottom: -20px; /* Pull the content up a bit */
+        }
+        .rating-badge {
+            font-size: 1.2rem;
+            padding: 0.5rem 1rem;
+        }
+        .object-fit-cover {
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/hotels">Hotels</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ hotel.name }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Hotel Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{{ hotel.name }}</h1>
+            <p>
+                <i class="bi bi-geo-alt-fill"></i> 
+                {{ hotel.location }}
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge bg-success rating-badge">{{ hotel.rating }} ★</span>
+        </div>
+    </div>
+    
+    <!-- Hotel Gallery -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="hotel-image" style="background-image: url('{{ hotel.image_url | default('https://source.unsplash.com/random/800x600/?hotel') }}');"></div>
+        </div>
+        <div class="col-md-4">
+            <div class="row g-2">
+                {% if hotel.photo_urls %}
+                    {% for photo_url in hotel.photo_urls %}
+                        {% if loop.index <= 4 %}
+                            <div class="col-6">
+                                <div class="thumbnail" style="background-image: url('{{ photo_url }}');"></div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    {% for i in range(4) %}
+                        <div class="col-6">
+                            <div class="thumbnail" style="background-image: url('https://source.unsplash.com/random/300x200/?hotel');"></div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hotel Description -->
+    <div class="card mb-5">
+        <div class="card-body">
+            <h3 class="card-title mb-4">About this hotel</h3>
+            <p class="card-text">{{ hotel.description }}</p>
+            
+            <h4 class="mt-4 mb-3">Hotel Amenities</h4>
+            <div class="row">
+                {% if hotel.amenities %}
+                    {% for amenity in hotel.amenities %}
+                    <div class="col-md-4 mb-2">
+                        <p>
+                            <i class="bi bi-{{ amenity.icon }}"></i> {{ amenity.name }}
+                            {% if amenity.description %}
+                            <small class="text-muted d-block">{{ amenity.description }}</small>
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <p class="text-muted">No amenities information available for this hotel.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add this just above the Available Rooms Section -->
+    {% if selected_dates.check_in %}
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-calendar-check me-2"></i>
+            Showing rooms available from <strong>{{ selected_dates.check_in }}</strong> to <strong>{{ selected_dates.check_out }}</strong>
+            <a href="/hotel/{{ hotel.id }}" class="btn btn-sm btn-outline-secondary ms-3">Clear dates</a>
+        </div>
+    {% endif %}
+
+    <!-- Available Rooms Section -->
+    <h2 class="mb-4">Available Rooms</h2>
+    
+    {% for room in rooms %}
+        {% if room.available %}
+            <div class="card room-card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-3">
+                        <img src="{{ room.image_url | default('https://source.unsplash.com/random/300x200/?hotel-room') }}" 
+                             class="img-fluid rounded-start h-100 object-fit-cover" alt="Room {{ room.room_number }}">
+                    </div>
+                    <div class="col-md-9">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title">Room {{ room.room_number }}</h5>
+                                <span class="text-primary fw-bold">${{ room.price_per_night }} / night</span>
+                            </div>
+                            <p class="card-text">{{ room.description }}</p>
+                            
+                            <!-- Room Amenities from Database -->
+                            <div class="amenities my-3">
+                                <h6>Room Amenities</h6>
+                                <div class="row">
+                                    {% if room.additional_services %}
+                                        {% for service in room.additional_services %}
+                                        <div class="col-md-4">
+                                            <p class="mb-1">
+                                                <i class="bi bi-check-circle-fill text-success"></i> 
+                                                {{ service.name }} 
+                                                {% if service.price > 0 %}
+                                                <span class="text-muted">(+${{ service.price }})</span>
+                                                {% else %}
+                                                <span class="text-success">(Free)</span>
+                                                {% endif %}
+                                            </p>
+                                            {% if service.description %}
+                                            <small class="text-muted">{{ service.description }}</small>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="col-12">
+                                            <p class="text-muted">No additional services available for this room.</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Find the Book This Room button in your room card section -->
+                            <div class="d-flex justify-content-end mt-3">
+                                <a href="/book?room_id={{ room.id }}{% if selected_dates.check_in %}&check_in={{ selected_dates.check_in }}&check_out={{ selected_dates.check_out }}{% endif %}" class="btn btn-primary">Book This Room</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+    
+    {% if rooms|length == 0 or rooms|selectattr('available')|list|length == 0 %}
+    <div class="alert alert-info">
+        No available rooms at this time. Please try another date or hotel.
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+<!-- Bootstrap JS -->
+{% block scripts %}
+{{ super() }}
+{% endblock %}
+</body>
+</html>
