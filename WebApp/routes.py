@@ -1,6 +1,5 @@
 from flask import render_template, flash, redirect, url_for, session, current_app, request
 from WebApp.extensions import db
-<<<<<<< HEAD
 from WebApp.models import User, Hotel, Role, Availability, Amenity, hotel_amenities, Room, Booking
 from WebApp.forms.loginForm import LoginForm
 from WebApp.forms.registerform import RegisterForm
@@ -9,11 +8,6 @@ from authlib.jose import jwt
 from datetime import datetime, timedelta
 from sqlalchemy import desc, asc
 from math import ceil
-=======
-from WebApp.models import User
-
-from WebApp.forms.loginForm import LoginForm, RegistrationForm
->>>>>>> f66999a644d44ddfc7bc85e6ffd4eef40015787f
 
 def register_routes(app):
     @app.route("/login", methods=["GET", "POST"])
@@ -136,7 +130,6 @@ def register_routes(app):
             })
         
         return render_template("index.html", 
-<<<<<<< HEAD
                     title="Hotel Guru",
                     user=get_current_user(),
                     hotels=hotels)
@@ -793,26 +786,3 @@ def register_routes(app):
         db.session.commit()
         flash("Booking cancelled successfully!")
         return redirect(url_for('user_bookings'))
-=======
-                    title="Python Web",
-                    user=user, 
-                    posts=posts)
-    
-    @app.route("/register", methods=["GET", "POST"])
-    def register():
-        form = RegistrationForm()
-        if form.validate_on_submit():
-            db_user = db.session.execute(db.select(User).filter_by(
-                username=form.username.data)).scalar_one_or_none()
-            if db_user:
-                flash(f"User {form.username.data} already exists!")
-                return redirect("/index")
-            else:
-                new_user = User(username=form.username.data, email=form.email.data, password=form.password.data)
-                db.session.add(new_user)
-                db.session.commit()
-                flash(f"User {form.username.data} registered successfully!")
-                return redirect("/index")
-        return render_template("register.html", form=form)
-        
->>>>>>> f66999a644d44ddfc7bc85e6ffd4eef40015787f
